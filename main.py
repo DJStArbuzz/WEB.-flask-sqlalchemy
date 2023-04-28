@@ -11,6 +11,32 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
+sp = {'Меркурий': ['Самая мелкая планета',
+                   'Планет обладает застывшим железным ядром',
+                   'Названа в честь древнеримского бога торговли',
+                   'Период обращения всего 87, 97 суток',
+                   'Характерна крайне разреженная гелиевая атмосфера'],
+      'Венера': ['Часто называют "сестрой" Земли',
+                 'Не пригодна для жизни',
+                 'Много углерода, азота и серы',
+                 'Температура превышает 460 по Цельсию',
+                 'Атмосферное давление Венеры превышает земное в 92 раза'],
+      "Земля": ['Ее здесь не должно быть',
+                'Богата ресурсами',
+                'Самая плотная, пятая по диаметру и массе среди всех планет системы',
+                'Имеет один спутник',
+                'Вроде как живем на ней'],
+      'Марс': ['Эта планета близка к Земле;',
+               'На ней много необходимых ресурсов;',
+               'На ней есть вода и атмосфера;',
+               'На ней есть небольшое магнитное поле;',
+               'Наконец, она просто красива!'],
+      'Арбуз': ['Вид цветковых растений семейства тыквенных',
+                'Вьющееся и тянущееся виноградное растение',
+                'Арбуз растет в благоприятном климате',
+                'Выращивают арбуз везде',
+                'Арбузы вкусные']}
+
 
 @app.route('/')
 def index():
@@ -50,7 +76,12 @@ def astronaut_selection():
 
 @app.route('/choice/<planet_name>')
 def choice(planet_name):
-    return render_template('choice_planet.html', planet_name=planet_name)
+    planet_name = planet_name.capitalize()
+    try:
+        rows = sp[planet_name]
+    except KeyError:
+        rows = sp['Марс']
+    return render_template('choice_planet.html', planet_name=planet_name, rows=rows)
 
 
 @app.route("/news")
@@ -121,7 +152,7 @@ def logout():
     return redirect("/")
 
 
-@app.route('/news',  methods=['GET', 'POST'])
+@app.route('/news', methods=['GET', 'POST'])
 @login_required
 def add_news():
     form = NewsForm()
@@ -186,6 +217,7 @@ def edit_news(id):
                            title='Редактирование новости',
                            form=form
                            )
+
 
 def main():
     db_session.global_init("db/mars_explorer.db")
