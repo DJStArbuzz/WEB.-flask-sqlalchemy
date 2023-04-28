@@ -97,6 +97,7 @@ def load_photo():
     return render_template('load_photo.html')
 
 
+
 @app.route("/news")
 def index_news():
     db_sess = db_session.create_session()
