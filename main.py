@@ -97,6 +97,10 @@ def load_photo():
     return render_template('load_photo.html')
 
 
+@app.route('/carousel')
+def carousel():
+    return render_template('carousel.html')
+
 
 @app.route("/news")
 def index_news():
