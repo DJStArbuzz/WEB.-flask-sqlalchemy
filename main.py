@@ -32,6 +32,22 @@ def test_image():
     return render_template("image.html")
 
 
+@app.route('/astronaut_selection', methods=['POST', 'GET'])
+def astronaut_selection():
+    if request.method == 'GET':
+        return render_template('astronaut_selection.html')
+    elif request.method == 'POST':
+        print(request.form['second_name'])
+        print(request.form['name'])
+        print(request.form['email'])
+        print(request.form['education'])
+        print(request.form['profession'])
+        print(request.form['sex'])
+        print(request.form['motivation'])
+        print(request.form['stay_on_mars'])
+        return "Форма отправлена"
+
+
 @app.route("/news")
 def index_news():
     db_sess = db_session.create_session()
