@@ -1,8 +1,10 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, abort, request
 from data import db_session
-from data.users import User, LoginForm
-from forms.user import RegisterForm
-from flask_login import LoginManager, login_user, logout_user, login_required
+from data.users import User
+from forms.user import LoginForm, RegisterForm
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from data.news import News
+from forms.news import NewsForm
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -10,9 +12,15 @@ login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 
-@app.route('/')
-def main_page():
-    return render_template('index.html')
+@app.route("/")
+def index():
+    db_sess = db_session.create_session()
+    if current_user.is_authenticated:
+        news = db_sess.query(News).filter(
+            (News.user == current_user) | (News.is_private != True))
+    else:
+        news = db_sess.query(News).filter(News.is_private != True)
+    return render_template("index.html", news=news)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -71,6 +79,72 @@ def logout():
     logout_user()
     return redirect("/")
 
+
+@app.route('/news',  methods=['GET', 'POST'])
+@login_required
+def add_news():
+    form = NewsForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        news = News()
+        news.title = form.title.data
+        news.content = form.content.data
+        news.is_private = form.is_private.data
+        current_user.news.append(news)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('news.html', title='Добавление новости',
+                           form=form)
+
+
+@app.route('/news_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def news_delete(id):
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.id == id,
+                                      News.user == current_user
+                                      ).first()
+    if news:
+        db_sess.delete(news)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+
+@app.route('/news/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_news(id):
+    form = NewsForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        news = db_sess.query(News).filter(News.id == id,
+                                          News.user == current_user
+                                          ).first()
+        if news:
+            form.title.data = news.title
+            form.content.data = news.content
+            form.is_private.data = news.is_private
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        news = db_sess.query(News).filter(News.id == id,
+                                          News.user == current_user
+                                          ).first()
+        if news:
+            news.title = form.title.data
+            news.content = form.content.data
+            news.is_private = form.is_private.data
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('news.html',
+                           title='Редактирование новости',
+                           form=form
+                           )
 
 def main():
     db_session.global_init("db/mars_explorer.db")
