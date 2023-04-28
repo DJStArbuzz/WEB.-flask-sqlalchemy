@@ -48,6 +48,11 @@ def astronaut_selection():
         return "Форма отправлена"
 
 
+@app.route('/choice/<planet_name>')
+def choice(planet_name):
+    return render_template('choice_planet.html', planet_name=planet_name)
+
+
 @app.route("/news")
 def index_news():
     db_sess = db_session.create_session()
