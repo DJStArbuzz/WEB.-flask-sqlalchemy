@@ -84,6 +84,11 @@ def choice(planet_name):
     return render_template('choice_planet.html', planet_name=planet_name, rows=rows)
 
 
+@app.route('/results/<nickname>/<int:level>/<float:rating>')
+def results(nickname, level, rating):
+    return render_template('result.html', nickname=nickname, level=level, rating=rating)
+
+
 @app.route("/news")
 def index_news():
     db_sess = db_session.create_session()
