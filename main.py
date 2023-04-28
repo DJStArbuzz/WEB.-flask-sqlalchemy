@@ -39,8 +39,13 @@ sp = {'Меркурий': ['Самая мелкая планета',
 
 
 @app.route('/')
+@app.route('/index')
 def index():
-    return render_template("index.html")
+    param = {}
+    param['title'] = 'Заготовка'
+    param['h1'] = 'Миссия Колонизация Марса'
+    param['h4'] = 'И на Марсе будут яблони цвести!'
+    return render_template('index.html', **param)
 
 
 @app.route('/promotion')
