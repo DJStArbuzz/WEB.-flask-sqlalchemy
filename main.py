@@ -89,6 +89,14 @@ def results(nickname, level, rating):
     return render_template('result.html', nickname=nickname, level=level, rating=rating)
 
 
+@app.route('/load_photo', methods=['POST', 'GET'])
+def load_photo():
+    if request.method == 'POST':
+        file = request.files['file']
+        file.save('static/img/new_picture.png')
+    return render_template('load_photo.html')
+
+
 @app.route("/news")
 def index_news():
     db_sess = db_session.create_session()
