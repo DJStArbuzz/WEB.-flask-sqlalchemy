@@ -12,15 +12,35 @@ login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 
-@app.route("/")
+@app.route('/')
 def index():
+    return render_template("index.html")
+
+
+@app.route('/promotion')
+def promotion():
+    return render_template("promotion.html")
+
+
+@app.route('/promotion_image')
+def promotion2():
+    return render_template("promotion2.html")
+
+
+@app.route('/image_mars')
+def test_image():
+    return render_template("image.html")
+
+
+@app.route("/news")
+def index_news():
     db_sess = db_session.create_session()
     if current_user.is_authenticated:
         news = db_sess.query(News).filter(
             (News.user == current_user) | (News.is_private != True))
     else:
         news = db_sess.query(News).filter(News.is_private != True)
-    return render_template("index.html", news=news)
+    return render_template("index_news.html", news=news)
 
 
 @app.route('/register', methods=['GET', 'POST'])
